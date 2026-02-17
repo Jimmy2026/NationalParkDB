@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPS Database System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — National Parks: Earthy Brutalist Refinement
+   Deep forest greens, warm terracotta, aged paper texture
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --forest:   #1a2e1a;
+  --moss:     #2d4a2d;
+  --pine:     #3d6b3d;
+  --sage:     #6b8f5e;
+  --fern:     #a8c49a;
+  --mist:     #d4e6c9;
+  --bark:     #8b5e3c;
+  --earth:    #c4813a;
+  --sand:     #e8d5b7;
+  --parchment:#f5f0e8;
+  --stone:    #9b9b8a;
+  --smoke:    #e8e8e0;
+  --night:    #0d1f0d;
+  --gold:     #d4a017;
+  --crimson:  #c0392b;
+  --sky:      #4a90b8;
+
+  --radius:   8px;
+  --shadow:   0 4px 24px rgba(13,31,13,0.18);
+  --shadow-lg:0 8px 48px rgba(13,31,13,0.24);
+  --border:   1px solid rgba(61,107,61,0.2);
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'Outfit', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --sidebar-w: 260px;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--parchment);
+  color: var(--forest);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--forest);
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(168,196,154,0.15);
+}
+
+.logo-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 44px; height: 44px;
+  background: var(--earth);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.logo-text h1 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--mist);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.logo-text span {
+  font-size: 0.68rem;
+  color: var(--sage);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
+.nav-section {
+  padding: 20px 0 8px;
+}
+
+.nav-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--sage);
+  padding: 0 24px 8px;
+  font-weight: 600;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 24px;
+  color: var(--fern);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.875rem;
+  font-weight: 400;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: rgba(168,196,154,0.08);
+  color: var(--mist);
+}
+
+.nav-item.active {
+  background: rgba(168,196,154,0.12);
+  color: #fff;
+  border-left-color: var(--earth);
+  font-weight: 500;
+}
+
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: rgba(196,129,58,0.3);
+  color: var(--earth);
+  border-radius: 20px;
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(168,196,154,0.12);
+  font-size: 0.7rem;
+  color: var(--sage);
+  line-height: 1.6;
+}
+
+/* ── Main Content ── */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Topbar ── */
+#topbar {
+  background: var(--parchment);
+  border-bottom: var(--border);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--forest);
+  flex: 1;
+}
+
+.topbar-search {
+  display: flex;
+  align-items: center;
+  background: var(--smoke);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  gap: 8px;
+  width: 240px;
+}
+
+.topbar-search input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--forest);
+  outline: none;
+  width: 100%;
+}
+
+.topbar-search input::placeholder { color: var(--stone); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--pine);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--moss); }
+
+.btn-earth {
+  background: var(--earth);
+  color: #fff;
+}
+.btn-earth:hover { background: var(--bark); }
+
+.btn-outline {
+  background: transparent;
+  border: var(--border);
+  color: var(--forest);
+}
+.btn-outline:hover { background: var(--smoke); }
+
+.btn-danger {
+  background: var(--crimson);
+  color: #fff;
+}
+.btn-danger:hover { background: #a93226; }
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+/* ── Content Area ── */
+#content {
+  padding: 32px;
+  flex: 1;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+
+.page-header-left h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--forest);
+  line-height: 1.1;
+}
+
+.page-header-left p {
+  color: var(--stone);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/* ── Stats Cards ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #fff;
+  border: var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--pine);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.stat-card.earth::before { background: var(--earth); }
+.stat-card.gold::before  { background: var(--gold); }
+.stat-card.sky::before   { background: var(--sky); }
+.stat-card.crimson::before { background: var(--crimson); }
+
+.stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--stone);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--forest);
+  line-height: 1;
+}
+
+.stat-icon {
+  position: absolute;
+  top: 20px; right: 16px;
+  font-size: 1.5rem;
+  opacity: 0.2;
+}
+
+/* ── Tables ── */
+.table-container {
+  background: #fff;
+  border: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.table-header {
+  padding: 18px 24px;
+  border-bottom: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--smoke);
+}
+
+.table-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--forest);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--stone);
+  font-weight: 600;
+  border-bottom: var(--border);
+  background: var(--smoke);
+}
+
+tbody td {
+  padding: 13px 20px;
+  border-bottom: 1px solid rgba(61,107,61,0.06);
+  color: var(--forest);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--parchment); }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.badge-green { background: rgba(61,107,61,0.12); color: var(--pine); }
+.badge-earth { background: rgba(196,129,58,0.15); color: var(--bark); }
+.badge-stone { background: rgba(155,155,138,0.15); color: var(--stone); }
+.badge-sky   { background: rgba(74,144,184,0.15); color: var(--sky); }
+.badge-gold  { background: rgba(212,160,23,0.15); color: #a07010; }
+.badge-red   { background: rgba(192,57,43,0.12); color: var(--crimson); }
+
+/* ── Grid Layouts ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* ── Cards ── */
+.card {
+  background: #fff;
+  border: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  padding: 18px 24px;
+  border-bottom: var(--border);
+  background: var(--smoke);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--forest);
+}
+
+.card-body { padding: 20px 24px; }
+
+/* ── Forms ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-full { grid-column: 1 / -1; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--moss);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 14px;
+  border: var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--forest);
+  background: var(--parchment);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--pine);
+  box-shadow: 0 0 0 3px rgba(61,107,61,0.12);
+}
+
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: var(--border);
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,31,13,0.7);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; animation: fadeIn 0.15s ease; }
+
+.modal {
+  background: var(--parchment);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--parchment);
+  z-index: 1;
+}
+
+.modal-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--forest);
+}
+
+.modal-close {
+  background: var(--smoke);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--stone);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: var(--sand); color: var(--forest); }
+
+.modal-body { padding: 24px 28px; }
+
+/* ── Toast Notifications ── */
+#toast-container {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toast {
+  background: var(--forest);
+  color: #fff;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-lg);
+  min-width: 280px;
+  animation: slideIn 0.2s ease;
+}
+
+.toast.success { border-left: 4px solid var(--sage); }
+.toast.error   { border-left: 4px solid var(--crimson); }
+.toast.info    { border-left: 4px solid var(--sky); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Query Terminal ── */
+.query-terminal {
+  background: var(--night);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.terminal-bar {
+  padding: 10px 16px;
+  background: var(--forest);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terminal-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-bar span {
+  color: var(--sage);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+textarea.sql-input {
+  width: 100%;
+  background: var(--night);
+  color: #a8ff78;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 20px;
+  border: none;
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+  line-height: 1.6;
+}
+
+.query-results {
+  background: #fff;
+  border-radius: 12px;
+  border: var(--border);
+  margin-top: 16px;
+  overflow: auto;
+  max-height: 400px;
+}
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--stone);
+}
+
+.empty-state .icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+.empty-state h3 { font-family: var(--font-display); font-size: 1.3rem; color: var(--stone); margin-bottom: 8px; }
+.empty-state p { font-size: 0.875rem; }
+
+/* ── Dashboard Specifics ── */
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(61,107,61,0.08);
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--sage);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.activity-dot.earth { background: var(--earth); }
+.activity-dot.gold { background: var(--gold); }
+
+.activity-text { font-size: 0.875rem; line-height: 1.4; }
+.activity-time { font-size: 0.75rem; color: var(--stone); margin-top: 2px; }
+
+/* ── Hero Banner on Dashboard ── */
+.hero-banner {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--moss) 50%, var(--pine) 100%);
+  border-radius: 16px;
+  padding: 40px;
+  color: #fff;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: '🌲🏔️🌿🦌🌳';
+  position: absolute;
+  right: 40px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 4rem;
+  opacity: 0.15;
+  letter-spacing: 8px;
+}
+
+.hero-banner h1 {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+
+.hero-banner p {
+  opacity: 0.75;
+  font-size: 0.95rem;
+  max-width: 500px;
+}
+
+/* ── Progress Bar ── */
+.progress-bar-bg {
+  background: var(--smoke);
+  border-radius: 20px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pine), var(--sage));
+  border-radius: 20px;
+  transition: width 0.6s ease;
+}
+
+/* ── Loading Spinner ── */
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 2px solid var(--fern);
+  border-top-color: var(--pine);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: var(--stone);
+  font-size: 0.875rem;
+}
+
+/* ── Checkbox Toggle ── */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-input { display: none; }
+
+.toggle-track {
+  width: 40px; height: 22px;
+  background: var(--smoke);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.2s;
+  border: 1px solid rgba(61,107,61,0.2);
+}
+
+.toggle-input:checked + .toggle-track { background: var(--pine); }
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-input:checked + .toggle-track::after { left: 20px; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  border-bottom: var(--border);
+  margin-bottom: 24px;
+  gap: 4px;
+}
+
+.tab {
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--stone);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab:hover { color: var(--pine); }
+.tab.active { color: var(--pine); border-bottom-color: var(--pine); }
+
+/* ── Park Card ── */
+.park-card {
+  background: #fff;
+  border: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.park-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.park-card-img {
+  height: 80px;
+  background: linear-gradient(135deg, var(--moss), var(--pine));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+}
+
+.park-card-body { padding: 16px; }
+
+.park-card-body h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--forest);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.park-card-meta {
+  font-size: 0.78rem;
+  color: var(--stone);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { transform: translateX(-260px); }
+  #sidebar.open { transform: translateX(0); width: 260px; }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  #content { padding: 20px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Utility ── */
+.text-muted { color: var(--stone); font-size: 0.85rem; }
+.text-mono  { font-family: var(--font-mono); font-size: 0.85rem; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.flex  { display: flex; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.hidden { display: none !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(61,107,61,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(61,107,61,0.5); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ SIDEBAR ══════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">
+      <div class="logo-icon">🏔️</div>
+      <div class="logo-text">
+        <h1>National Park Service</h1>
+        <span>Database System</span>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">People</div>
+      <div class="nav-item" data-page="persons">
+        <span class="nav-icon">👤</span> All Persons
+      </div>
+      <div class="nav-item" data-page="visitors">
+        <span class="nav-icon">🎒</span> Visitors
+      </div>
+      <div class="nav-item" data-page="rangers">
+        <span class="nav-icon">🌲</span> Rangers
+      </div>
+      <div class="nav-item" data-page="researchers">
+        <span class="nav-icon">🔬</span> Researchers
+      </div>
+      <div class="nav-item" data-page="donors">
+        <span class="nav-icon">💚</span> Donors
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Park Operations</div>
+      <div class="nav-item" data-page="parks">
+        <span class="nav-icon">🗺️</span> National Parks
+      </div>
+      <div class="nav-item" data-page="programs">
+        <span class="nav-icon">📅</span> Programs
+      </div>
+      <div class="nav-item" data-page="enrollments">
+        <span class="nav-icon">📋</span> Enrollments
+      </div>
+      <div class="nav-item" data-page="teams">
+        <span class="nav-icon">🛡️</span> Ranger Teams
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Finance & Projects</div>
+      <div class="nav-item" data-page="donations">
+        <span class="nav-icon">💰</span> Donations
+      </div>
+      <div class="nav-item" data-page="projects">
+        <span class="nav-icon">🌿</span> Conservation
+      </div>
+      <div class="nav-item" data-page="mailing">
+        <span class="nav-icon">✉️</span> Mailing List
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <a href="https://abdulmaliksho.vercel.app" target="_blank" rel="noopener" class="nav-label" style="display:block;color:var(--sage);text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='var(--fern)'" onmouseout="this.style.color='var(--sage)'">AbdulMalik Shodunke ↗</a>
+      <div class="nav-item" data-page="query">
+        <span class="nav-icon">⌨️</span> SQL Terminal
+      </div>
+      <div class="nav-item" data-page="operations">
+        <span class="nav-icon">⚙️</span> Bulk Operations
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div>SQLite · Node.js · Express</div>
+    <a href="https://abdulmaliksho.vercel.app" target="_blank" rel="noopener" 
+       style="display:block;margin-top:6px;color:var(--earth);text-decoration:none;font-weight:600;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s;"
+       onmouseover="this.style.color='var(--fern)'" onmouseout="this.style.color='var(--earth)'">
+      AbdulMalik Shodunke · AI Researcher ↗
+    </a>
+</div>
+</aside>
+
+<!-- ══════════════════════════════════════ MAIN ═════════════════════════════ -->
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-search">
+      <span>🔍</span>
+      <input type="text" id="global-search" placeholder="Search..." oninput="handleSearch(this.value)">
+    </div>
+    <button class="btn btn-primary" id="topbar-add-btn" onclick="openAddModal()" style="display:none">
+      + Add New
+    </button>
+  </div>
+
+  <div id="content">
+
+    <!-- ───────────────── DASHBOARD ───────────────── -->
+    <div id="page-dashboard" class="page active">
+      <div class="hero-banner">
+        <h1>Park Service Database</h1>
+        <p>Manage visitors, rangers, researchers, donations, and conservation programs across all national parks.</p>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="loading"><div class="spinner"></div> Loading stats...</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Donations</h3>
+            <span class="badge badge-green">Last 5</span>
+          </div>
+          <div class="card-body" id="recent-donations-list">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Top Parks by Enrollment</h3>
+            <span class="badge badge-earth">Ranked</span>
+          </div>
+          <div class="card-body" id="top-parks-list">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────────────── PERSONS ───────────────── -->
+    <div id="page-persons" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>All Persons</h2>
+          <p>Complete person registry with roles</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-person')">+ Add Person</button>
+      </div>
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Person Registry</h3>
+          <span class="text-muted" id="persons-count"></span>
+        </div>
+        <div id="persons-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── VISITORS ───────────────── -->
+    <div id="page-visitors" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Visitors</h2>
+          <p>People with visitor role and their enrollments</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-visitor')">+ Add Visitor</button>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Visitor Registry</h3></div>
+        <div id="visitors-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── RANGERS ───────────────── -->
+    <div id="page-rangers" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Rangers</h2>
+          <p>Field staff, teams, and certifications</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-ranger')">+ Add Ranger</button>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Ranger Roster</h3></div>
+        <div id="rangers-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── RESEARCHERS ───────────────── -->
+    <div id="page-researchers" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Researchers</h2>
+          <p>Research staff and their overseen teams</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-researcher')">+ Add Researcher</button>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Research Staff</h3></div>
+        <div id="researchers-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── DONORS ───────────────── -->
+    <div id="page-donors" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Donors</h2>
+          <p>Donor profiles and giving history</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Donor Directory</h3></div>
+        <div id="donors-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── NATIONAL PARKS ───────────────── -->
+    <div id="page-parks" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>National Parks</h2>
+          <p>Park locations, capacity, and programs</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-park')">+ Add Park</button>
+      </div>
+      <div id="parks-grid" class="three-col mb-24"></div>
+      <div class="table-container">
+        <div class="table-header"><h3>Parks Table View</h3></div>
+        <div id="parks-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── PROGRAMS ───────────────── -->
+    <div id="page-programs" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Programs</h2>
+          <p>Educational and recreational park programs</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-program')">+ Add Program</button>
+      </div>
+      <div class="card mb-24">
+        <div class="card-header"><h3>Filter Programs</h3></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Park</label>
+              <select id="filter-park-programs" onchange="loadPrograms()">
+                <option value="">All Parks</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Programs After Date</label>
+              <input type="date" id="filter-after-date" onchange="loadPrograms()">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Program Schedule</h3></div>
+        <div id="programs-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── ENROLLMENTS ───────────────── -->
+    <div id="page-enrollments" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Enrollments</h2>
+          <p>Visitor program enrollments with accessibility info</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-enrollment')">+ Add Enrollment</button>
+      </div>
+      <div class="card mb-24">
+        <div class="card-header"><h3>Filter Enrollments</h3></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Park</label>
+              <select id="filter-enroll-park" onchange="loadEnrollments()">
+                <option value="">All Parks</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Program</label>
+              <input type="text" id="filter-enroll-program" placeholder="Filter by program name..." oninput="loadEnrollments()">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Enrollment List</h3></div>
+        <div id="enrollments-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── RANGER TEAMS ───────────────── -->
+    <div id="page-teams" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Ranger Teams</h2>
+          <p>Team composition, leaders, and focus areas</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-team')">+ Add Team</button>
+      </div>
+      <div id="teams-container"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ───────────────── DONATIONS ───────────────── -->
+    <div id="page-donations" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Donations</h2>
+          <p>Donation records, campaigns, and payment details</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-donation')">+ Add Donation</button>
+      </div>
+      <div class="card mb-24">
+        <div class="card-header"><h3>Filter Donations</h3></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Month (YYYY-MM)</label>
+              <input type="month" id="filter-donation-month" onchange="loadDonations()">
+            </div>
+            <div class="form-group" style="justify-content:flex-end;flex-direction:row;align-items:flex-end;gap:12px;">
+              <label class="toggle-label">
+                <input type="checkbox" class="toggle-input" id="filter-anon" onchange="loadDonations()">
+                <div class="toggle-track"></div>
+                Anonymous only
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Donation Records</h3></div>
+        <div id="donations-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── CONSERVATION PROJECTS ───────────────── -->
+    <div id="page-projects" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Conservation Projects</h2>
+          <p>Environmental and wildlife protection initiatives</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Active Projects</h3></div>
+        <div id="projects-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── MAILING LIST ───────────────── -->
+    <div id="page-mailing" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Mailing List</h2>
+          <p>Newsletter subscribers — export as CSV</p>
+        </div>
+        <button class="btn btn-earth" onclick="exportMailingCSV()">⬇ Export CSV</button>
+      </div>
+      <div class="table-container">
+        <div class="table-header"><h3>Subscribers</h3></div>
+        <div id="mailing-table-wrap"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── SQL TERMINAL ───────────────── -->
+    <div id="page-query" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>SQL Terminal</h2>
+          <p>Execute raw SQLite queries against the database</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3>Query Editor</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="setQuery('SELECT * FROM PERSON ORDER BY LAST_NAME LIMIT 20')">Example</button>
+            <button class="btn btn-primary btn-sm" onclick="runQuery()">▶ Run</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="query-terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f56"></div>
+              <div class="terminal-dot" style="background:#ffbd2e"></div>
+              <div class="terminal-dot" style="background:#27c93f"></div>
+              <span>nps.db — SQLite</span>
+            </div>
+            <textarea class="sql-input" id="sql-input" placeholder="-- Type your SQL query here
+SELECT * FROM NATIONAL_PARK;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div id="query-results-container" class="hidden">
+        <div class="query-results" id="query-results"></div>
+      </div>
+    </div>
+
+    <!-- ───────────────── BULK OPERATIONS ───────────────── -->
+    <div id="page-operations" class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Bulk Operations</h2>
+          <p>System-wide data management operations</p>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><h3>🎓 Researcher Salary Raise</h3></div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Apply a 3% salary raise to all researchers who currently oversee more than one ranger team. This operation is based on the REPORTS_TO relationship.</p>
+            <div style="background:var(--mist);border-radius:var(--radius);padding:14px;margin-bottom:20px;font-family:var(--font-mono);font-size:0.78rem;color:var(--moss)">
+              UPDATE RESEARCHER SET SALARY = ROUND(SALARY * 1.03, 2)<br>
+              WHERE PERSON_ID IN (<br>
+              &nbsp;&nbsp;SELECT PERSON_ID FROM REPORTS_TO<br>
+              &nbsp;&nbsp;GROUP BY PERSON_ID<br>
+              &nbsp;&nbsp;HAVING COUNT(DISTINCT TEAM_ID) > 1<br>
+              )
+            </div>
+            <button class="btn btn-earth" onclick="applyRaises()">Apply 3% Raise</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>🧹 Clean Inactive Visitors</h3></div>
+          <div class="card-body">
+            <p class="text-muted mb-16">Remove visitors who have no program enrollments AND no valid (non-expired) park passes. This keeps the visitor table clean.</p>
+            <div style="background:var(--mist);border-radius:var(--radius);padding:14px;margin-bottom:20px;font-family:var(--font-mono);font-size:0.78rem;color:var(--moss)">
+              DELETE FROM VISITOR<br>
+              WHERE PERSON_ID NOT IN (SELECT PERSON_ID FROM ENROLL)<br>
+              AND PERSON_ID NOT IN (<br>
+              &nbsp;&nbsp;SELECT PERSON_ID FROM PARK_PASS<br>
+              &nbsp;&nbsp;WHERE EXPIRATION_DATE > date('now')<br>
+              )
+            </div>
+            <button class="btn btn-danger" onclick="cleanVisitors()">Delete Inactive Visitors</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══════════════════════════════════════ MODALS ════════════════════════════ -->
+
+<!-- Add Person Modal -->
+<div class="modal-overlay" id="modal-add-person">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add New Person</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-person')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddPerson(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Person ID *</label>
+            <input type="text" name="ID" required placeholder="P009">
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select name="GENDER">
+              <option value="">—</option>
+              <option>Male</option><option>Female</option><option>Non-binary</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" name="FIRST_NAME" required>
+          </div>
+          <div class="form-group">
+            <label>Middle Initial</label>
+            <input type="text" name="MIDDLE_INITIAL" maxlength="1" placeholder="A">
+          </div>
+          <div class="form-group form-full">
+            <label>Last Name *</label>
+            <input type="text" name="LAST_NAME" required>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth *</label>
+            <input type="date" name="DATE_OF_BIRTH" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="PHONE_NUMBER" placeholder="555-555-5555">
+          </div>
+          <div class="form-group form-full">
+            <label>Email Address</label>
+            <input type="email" name="EMAIL_ADDRESS">
+          </div>
+          <div class="form-group form-full">
+            <label>Street *</label>
+            <input type="text" name="STREET" required>
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="CITY" required>
+          </div>
+          <div class="form-group">
+            <label>State *</label>
+            <input type="text" name="STATE" required>
+          </div>
+          <div class="form-group">
+            <label>Postal Code *</label>
+            <input type="text" name="POSTAL_CODE" required>
+          </div>
+          <div class="form-group">
+            <label class="toggle-label">
+              <input type="checkbox" class="toggle-input" name="NEWSLETTER_SUBSCRIBED">
+              <div class="toggle-track"></div>
+              Newsletter Subscriber
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Create Person</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-person')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Visitor Modal -->
+<div class="modal-overlay" id="modal-add-visitor">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Visitor + Enroll</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-visitor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddVisitor(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Person ID *</label>
+            <input type="text" name="PERSON_ID" required placeholder="Existing person ID">
+          </div>
+          <div class="form-group">
+            <label>Park Name</label>
+            <select name="PARK_NAME" id="visitor-park-select">
+              <option value="">— Skip Enrollment —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Program Name</label>
+            <input type="text" name="PROGRAM_NAME" placeholder="Leave blank to skip">
+          </div>
+          <div class="form-group">
+            <label>Visit Date</label>
+            <input type="date" name="VISIT_DATE">
+          </div>
+          <div class="form-group form-full">
+            <label>Accessibility Needs</label>
+            <input type="text" name="ACCESSIBILITY" placeholder="e.g., Wheelchair accessible route">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Visitor</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-visitor')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Ranger Modal -->
+<div class="modal-overlay" id="modal-add-ranger">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Ranger</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-ranger')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddRanger(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Person ID *</label>
+            <input type="text" name="PERSON_ID" required>
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" name="START_DATE">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="STATUS">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assign to Team ID</label>
+            <input type="text" name="TEAM_ID" placeholder="Optional">
+          </div>
+          <div class="form-group form-full">
+            <label>Certifications</label>
+            <input type="text" name="CERTIFICATIONS" placeholder="Wildlife Management, First Aid, ...">
+          </div>
+          <div class="form-group">
+            <label class="toggle-label">
+              <input type="checkbox" class="toggle-input" name="IS_LEADER">
+              <div class="toggle-track"></div>
+              Team Leader
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Ranger</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-ranger')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Researcher Modal -->
+<div class="modal-overlay" id="modal-add-researcher">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Researcher</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-researcher')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddResearcher(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Person ID *</label>
+            <input type="text" name="PERSON_ID" required>
+          </div>
+          <div class="form-group">
+            <label>Hire Date *</label>
+            <input type="date" name="HIRE_DATE" required>
+          </div>
+          <div class="form-group form-full">
+            <label>Research Field *</label>
+            <input type="text" name="RESEARCH_FIELD" required placeholder="Ecosystem Ecology">
+          </div>
+          <div class="form-group">
+            <label>Salary ($) *</label>
+            <input type="number" name="SALARY" required min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Researcher</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-researcher')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Park Modal -->
+<div class="modal-overlay" id="modal-add-park">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add National Park</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-park')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddPark(event)">
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Park Name *</label>
+            <input type="text" name="NAME" required placeholder="Acadia National Park">
+          </div>
+          <div class="form-group form-full">
+            <label>Street *</label>
+            <input type="text" name="STREET" required>
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="CITY" required>
+          </div>
+          <div class="form-group">
+            <label>State *</label>
+            <input type="text" name="STATE" required>
+          </div>
+          <div class="form-group">
+            <label>Postal Code *</label>
+            <input type="text" name="POSTAL_CODE" required>
+          </div>
+          <div class="form-group">
+            <label>Establishment Date *</label>
+            <input type="date" name="ESTABLISHMENT_DATE" required>
+          </div>
+          <div class="form-group">
+            <label>Visitor Capacity</label>
+            <input type="number" name="VISITOR_CAPACITY" min="0" placeholder="Optional">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Park</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-park')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Program Modal -->
+<div class="modal-overlay" id="modal-add-program">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Program</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-program')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddProgram(event)">
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Park *</label>
+            <select name="PARK_NAME" required id="program-park-select">
+              <option value="">Select a park...</option>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label>Program Name *</label>
+            <input type="text" name="PROGRAM_NAME" required placeholder="Eagle Watch">
+          </div>
+          <div class="form-group">
+            <label>Type *</label>
+            <select name="TYPE" required>
+              <option value="">Select type...</option>
+              <option>Wildlife</option><option>Hiking</option><option>Photography</option>
+              <option>Science</option><option>Nature</option><option>Education</option>
+              <option>Conservation</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input type="date" name="START_DATE" required>
+          </div>
+          <div class="form-group">
+            <label>Duration (hours) *</label>
+            <input type="number" name="DURATION" required min="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Add Program</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-program')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Enrollment Modal -->
+<div class="modal-overlay" id="modal-add-enrollment">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Enrollment</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-enrollment')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddEnrollment(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Person ID *</label>
+            <input type="text" name="PERSON_ID" required>
+          </div>
+          <div class="form-group">
+            <label>Visit Date</label>
+            <input type="date" name="VISIT_DATE">
+          </div>
+          <div class="form-group">
+            <label>Park *</label>
+            <select name="PARK_NAME" required id="enroll-park-select">
+              <option value="">Select park...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Program Name *</label>
+            <input type="text" name="PROGRAM_NAME" required>
+          </div>
+          <div class="form-group form-full">
+            <label>Accessibility Needs</label>
+            <input type="text" name="ACCESSIBILITY" placeholder="Leave blank if none">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Enroll</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-enrollment')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Team Modal -->
+<div class="modal-overlay" id="modal-add-team">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Ranger Team</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-team')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddTeam(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Team ID *</label>
+            <input type="text" name="TEAM_ID" required placeholder="TEAM-003">
+          </div>
+          <div class="form-group">
+            <label>Formation Date</label>
+            <input type="date" name="FORMATION_DATE">
+          </div>
+          <div class="form-group form-full">
+            <label>Focus Area *</label>
+            <input type="text" name="FOCUS_AREA" required placeholder="Wildlife Monitoring">
+          </div>
+          <div class="form-group">
+            <label>Leader Person ID</label>
+            <input type="text" name="LEADER_ID" placeholder="Optional — must be a ranger">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Create Team</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-team')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Donation Modal -->
+<div class="modal-overlay" id="modal-add-donation">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Record Donation</h2>
+      <button class="modal-close" onclick="closeModal('modal-add-donation')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitAddDonation(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Donor Person ID *</label>
+            <input type="text" name="PERSON_ID" required>
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" name="DATE" required>
+          </div>
+          <div class="form-group">
+            <label>Amount ($) *</label>
+            <input type="number" name="AMOUNT" required min="0.01" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Campaign Name</label>
+            <input type="text" name="CAMPAIGN_NAME" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label>Payment Type *</label>
+            <select name="PAYMENT_TYPE" onchange="togglePaymentFields(this.value)" required>
+              <option value="">Select...</option>
+              <option value="card">Credit Card</option>
+              <option value="check">Check</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="toggle-label">
+              <input type="checkbox" class="toggle-input" name="IS_ANONYMOUS">
+              <div class="toggle-track"></div>
+              Anonymous Donor
+            </label>
+          </div>
+          <!-- Card fields -->
+          <div id="card-fields" class="form-full hidden">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Last 4 Digits *</label>
+                <input type="text" name="LAST_FOUR_DIGITS" maxlength="4" pattern="[0-9]{4}">
+              </div>
+              <div class="form-group">
+                <label>Card Type *</label>
+                <select name="CARD_TYPE">
+                  <option value="">Select...</option>
+                  <option>Visa</option><option>Mastercard</option><option>Amex</option><option>Discover</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Expiration Date *</label>
+                <input type="date" name="EXPIRATION_DATE">
+              </div>
+            </div>
+          </div>
+          <!-- Check fields -->
+          <div id="check-fields" class="form-full hidden">
+            <div class="form-group">
+              <label>Check Number *</label>
+              <input type="text" name="CHECK_NUMBER">
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Record Donation</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-donation')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- ══════════════════════════════════════ JAVASCRIPT ════════════════════════ -->
+<script>
+const API = 'http://localhost:3000/api';
+
+// ─── Navigation ────────────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+const pageLoaders = {};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    if (!page) return;
+    navigateTo(page);
+  });
+});
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const navItem = document.querySelector(`[data-page="${page}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  const pageEl = document.getElementById(`page-${page}`);
+  if (pageEl) pageEl.classList.add('active');
+
+  document.getElementById('page-title').textContent = navItem?.textContent.trim() || page;
+  currentPage = page;
+
+  // Load data for the page
+  switch(page) {
+    case 'dashboard':   loadDashboard(); break;
+    case 'persons':     loadPersons(); break;
+    case 'visitors':    loadVisitors(); break;
+    case 'rangers':     loadRangers(); break;
+    case 'researchers': loadResearchers(); break;
+    case 'donors':      loadDonors(); break;
+    case 'parks':       loadParks(); break;
+    case 'programs':    loadParkSelects(); loadPrograms(); break;
+    case 'enrollments': loadParkSelects(); loadEnrollments(); break;
+    case 'teams':       loadTeams(); break;
+    case 'donations':   loadDonations(); break;
+    case 'projects':    loadProjects(); break;
+    case 'mailing':     loadMailingList(); break;
+  }
+}
+
+// ─── API Helper ─────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(API + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  } catch (e) {
+    if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+      toast('Cannot connect to backend. Make sure the Node.js server is running on port 3000.', 'error');
+    }
+    throw e;
+  }
+}
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  el.innerHTML = `<span style="font-weight:700">${icon}</span> ${msg}`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ─── Modal ──────────────────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-add-visitor' || id === 'modal-add-enrollment') loadParkSelects();
+  if (id === 'modal-add-program') loadParkSelectForModal('program-park-select');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  const form = document.querySelector(`#${id} form`);
+  if (form) form.reset();
+  document.getElementById('card-fields')?.classList.add('hidden');
+  document.getElementById('check-fields')?.classList.add('hidden');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// ─── Dashboard ──────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const stats = await api('/stats');
+    const grid = document.getElementById('stats-grid');
+    const items = [
+      { label:'Total Persons',   value: stats.persons,      icon:'👤', cls:'' },
+      { label:'Visitors',        value: stats.visitors,     icon:'🎒', cls:'earth' },
+      { label:'Rangers',         value: stats.rangers,      icon:'🌲', cls:'' },
+      { label:'Researchers',     value: stats.researchers,  icon:'🔬', cls:'sky' },
+      { label:'Donors',          value: stats.donors,       icon:'💚', cls:'gold' },
+      { label:'National Parks',  value: stats.parks,        icon:'🗺️', cls:'' },
+      { label:'Programs',        value: stats.programs,     icon:'📅', cls:'earth' },
+      { label:'Ranger Teams',    value: stats.teams,        icon:'🛡️', cls:'' },
+      { label:'Enrollments',     value: stats.enrollments,  icon:'📋', cls:'sky' },
+      { label:'Total Donated',   value:'$' + Number(stats.totalDonated).toLocaleString('en-US',{minimumFractionDigits:2}), icon:'💰', cls:'gold' },
+    ];
+    grid.innerHTML = items.map(i => `
+      <div class="stat-card ${i.cls}">
+        <div class="stat-icon">${i.icon}</div>
+        <div class="stat-label">${i.label}</div>
+        <div class="stat-value">${i.value}</div>
+      </div>
+    `).join('');
+
+    // Recent donations
+    const dl = document.getElementById('recent-donations-list');
+    if (stats.recentDonations.length === 0) {
+      dl.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>No donations yet.</p></div>';
+    } else {
+      dl.innerHTML = stats.recentDonations.map(d => `
+        <div class="activity-item">
+          <div class="activity-dot ${d.IS_ANONYMOUS ? 'stone' : 'earth'}"></div>
+          <div>
+            <div class="activity-text">
+              <strong>$${Number(d.AMOUNT).toFixed(2)}</strong>
+              ${d.IS_ANONYMOUS ? '<span class="badge badge-stone">Anonymous</span>' : `from <strong>${d.donor_name}</strong>`}
+              ${d.CAMPAIGN_NAME ? `· <em>${d.CAMPAIGN_NAME}</em>` : ''}
+            </div>
+            <div class="activity-time">${d.DATE}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Top parks
+    const pl = document.getElementById('top-parks-list');
+    const maxEnroll = Math.max(...stats.topParks.map(p => p.enrollments), 1);
+    pl.innerHTML = stats.topParks.map((p, i) => `
+      <div style="margin-bottom:16px">
+        <div class="flex-between mb-16" style="margin-bottom:6px">
+          <span style="font-size:.875rem;font-weight:500">${p.PARK_NAME}</span>
+          <span class="badge badge-green">${p.enrollments}</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${(p.enrollments/maxEnroll*100).toFixed(0)}%"></div>
+        </div>
+      </div>
+    `).join('') || '<div class="empty-state"><p>No enrollment data.</p></div>';
+
+  } catch (e) {
+    document.getElementById('stats-grid').innerHTML = `
+      <div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--crimson)">
+        <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+        <strong>Cannot connect to backend server.</strong><br>
+        <span class="text-muted">Run: <code style="font-family:var(--font-mono);background:var(--smoke);padding:2px 6px;border-radius:4px">node server.js</code></span>
+      </div>`;
+  }
+}
+
+// ─── Persons ─────────────────────────────────────────────────────────────────
+async function loadPersons() {
+  try {
+    const data = await api('/persons');
+    document.getElementById('persons-count').textContent = `${data.length} records`;
+    document.getElementById('persons-table-wrap').innerHTML = data.length === 0 ? emptyState('👤', 'No persons') : `
+      <table>
+        <thead><tr>
+          <th>ID</th><th>Name</th><th>Contact</th><th>Location</th><th>Roles</th><th>Newsletter</th>
+        </tr></thead>
+        <tbody>${data.map(p => `
+          <tr>
+            <td class="text-mono">${p.ID}</td>
+            <td><strong>${p.FIRST_NAME}${p.MIDDLE_INITIAL ? ' ' + p.MIDDLE_INITIAL + '.' : ''} ${p.LAST_NAME}</strong></td>
+            <td>
+              ${p.PHONE_NUMBER ? `<div class="text-muted">${p.PHONE_NUMBER}</div>` : ''}
+              ${p.EMAIL_ADDRESS ? `<div class="text-muted">${p.EMAIL_ADDRESS}</div>` : ''}
+            </td>
+            <td class="text-muted">${p.CITY}, ${p.STATE}</td>
+            <td>${[
+              p.is_visitor  ? '<span class="badge badge-earth">Visitor</span>' : '',
+              p.is_ranger   ? '<span class="badge badge-green">Ranger</span>' : '',
+              p.is_researcher?'<span class="badge badge-sky">Researcher</span>' : '',
+              p.is_donor    ? '<span class="badge badge-gold">Donor</span>' : '',
+            ].filter(Boolean).join(' ') || '<span class="text-muted">—</span>'}</td>
+            <td>${p.NEWSLETTER_SUBSCRIBED ? '<span class="badge badge-green">✓ Yes</span>' : '<span class="text-muted">No</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Visitors ────────────────────────────────────────────────────────────────
+async function loadVisitors() {
+  try {
+    const data = await api('/visitors');
+    document.getElementById('visitors-table-wrap').innerHTML = data.length === 0 ? emptyState('🎒', 'No visitors') : `
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Enrollments</th></tr></thead>
+        <tbody>${data.map(v => `
+          <tr>
+            <td class="text-mono">${v.ID}</td>
+            <td><strong>${v.FIRST_NAME} ${v.LAST_NAME}</strong></td>
+            <td class="text-muted">${v.EMAIL_ADDRESS || v.PHONE_NUMBER || '—'}</td>
+            <td><span class="badge badge-earth">${v.enrollment_count} programs</span></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Rangers ─────────────────────────────────────────────────────────────────
+async function loadRangers() {
+  try {
+    const data = await api('/rangers');
+    document.getElementById('rangers-table-wrap').innerHTML = data.length === 0 ? emptyState('🌲', 'No rangers') : `
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Years</th><th>Teams</th><th>Certifications</th></tr></thead>
+        <tbody>${data.map(r => `
+          <tr>
+            <td class="text-mono">${r.ID}</td>
+            <td><strong>${r.FIRST_NAME} ${r.LAST_NAME}</strong><div class="text-muted">${r.EMAIL_ADDRESS || ''}</div></td>
+            <td><span class="badge ${r.STATUS === 'active' ? 'badge-green' : 'badge-stone'}">${r.STATUS}</span></td>
+            <td>${r.years_of_service} yrs</td>
+            <td class="text-muted" style="font-size:.8rem">${r.teams || '—'}</td>
+            <td class="text-muted" style="font-size:.8rem">${r.CERTIFICATIONS || '—'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Researchers ─────────────────────────────────────────────────────────────
+async function loadResearchers() {
+  try {
+    const data = await api('/researchers');
+    document.getElementById('researchers-table-wrap').innerHTML = data.length === 0 ? emptyState('🔬', 'No researchers') : `
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Research Field</th><th>Hire Date</th><th>Salary</th><th>Teams Overseen</th></tr></thead>
+        <tbody>${data.map(r => `
+          <tr>
+            <td class="text-mono">${r.ID}</td>
+            <td><strong>${r.FIRST_NAME} ${r.LAST_NAME}</strong><div class="text-muted">${r.EMAIL_ADDRESS || ''}</div></td>
+            <td>${r.RESEARCH_FIELD}</td>
+            <td class="text-muted">${r.HIRE_DATE}</td>
+            <td><strong>$${Number(r.SALARY).toLocaleString()}</strong></td>
+            <td><span class="badge badge-sky">${r.teams_overseen} team${r.teams_overseen !== 1 ? 's' : ''}</span></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Donors ──────────────────────────────────────────────────────────────────
+async function loadDonors() {
+  try {
+    const data = await api('/donors');
+    document.getElementById('donors-table-wrap').innerHTML = data.length === 0 ? emptyState('💚', 'No donors') : `
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Anonymous</th><th>Donations</th><th>Total Given</th></tr></thead>
+        <tbody>${data.map(d => `
+          <tr>
+            <td class="text-mono">${d.ID}</td>
+            <td><strong>${d.FIRST_NAME} ${d.LAST_NAME}</strong><div class="text-muted">${d.EMAIL_ADDRESS || ''}</div></td>
+            <td>${d.IS_ANONYMOUS ? '<span class="badge badge-stone">Anonymous</span>' : '<span class="text-muted">Named</span>'}</td>
+            <td>${d.donation_count}</td>
+            <td><strong style="color:var(--pine)">$${Number(d.total_donated).toLocaleString('en-US',{minimumFractionDigits:2})}</strong></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Parks ───────────────────────────────────────────────────────────────────
+const PARK_EMOJIS = ['🏔️','🌲','🦌','🌿','🏕️','🌊','🦅','⛰️'];
+let parksData = [];
+
+async function loadParks() {
+  try {
+    parksData = await api('/parks');
+    const grid = document.getElementById('parks-grid');
+    grid.innerHTML = parksData.map((p, i) => `
+      <div class="park-card">
+        <div class="park-card-img">${PARK_EMOJIS[i % PARK_EMOJIS.length]}</div>
+        <div class="park-card-body">
+          <h4>${p.NAME}</h4>
+          <div class="park-card-meta">
+            <span>📍 ${p.CITY}, ${p.STATE}</span>
+            <span>📅 Est. ${p.ESTABLISHMENT_DATE?.slice(0,4)}</span>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <span class="badge badge-green">${p.program_count} programs</span>
+              <span class="badge badge-earth">${p.enrollment_count} enrolled</span>
+              ${p.VISITOR_CAPACITY ? `<span class="badge badge-stone">Cap: ${p.VISITOR_CAPACITY.toLocaleString()}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('parks-table-wrap').innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Location</th><th>Established</th><th>Capacity</th><th>Programs</th></tr></thead>
+        <tbody>${parksData.map(p => `
+          <tr>
+            <td><strong>${p.NAME}</strong></td>
+            <td class="text-muted">${p.CITY}, ${p.STATE} ${p.POSTAL_CODE}</td>
+            <td class="text-muted">${p.ESTABLISHMENT_DATE}</td>
+            <td>${p.VISITOR_CAPACITY ? p.VISITOR_CAPACITY.toLocaleString() : '—'}</td>
+            <td><span class="badge badge-green">${p.program_count}</span></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+async function loadParkSelects() {
+  if (parksData.length === 0) {
+    try { parksData = await api('/parks'); } catch(e) { return; }
+  }
+  const opts = parksData.map(p => `<option value="${p.NAME}">${p.NAME}</option>`).join('');
+  ['filter-park-programs','filter-enroll-park','visitor-park-select','enroll-park-select'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const first = el.options[0];
+      el.innerHTML = (first ? first.outerHTML : '') + opts;
+    }
+  });
+}
+
+async function loadParkSelectForModal(id) {
+  if (parksData.length === 0) {
+    try { parksData = await api('/parks'); } catch(e) { return; }
+  }
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = '<option value="">Select a park...</option>' +
+    parksData.map(p => `<option value="${p.NAME}">${p.NAME}</option>`).join('');
+}
+
+// ─── Programs ────────────────────────────────────────────────────────────────
+async function loadPrograms() {
+  const park  = document.getElementById('filter-park-programs')?.value;
+  const after = document.getElementById('filter-after-date')?.value;
+  const params = new URLSearchParams();
+  if (park)  params.set('park', park);
+  if (after) params.set('after', after);
+  try {
+    const data = await api('/programs?' + params);
+    const TYPE_COLORS = { Wildlife:'badge-green', Hiking:'badge-earth', Photography:'badge-sky',
+                          Science:'badge-sky', Nature:'badge-green', Education:'badge-gold', default:'badge-stone' };
+    document.getElementById('programs-table-wrap').innerHTML = data.length === 0 ? emptyState('📅','No programs') : `
+      <table>
+        <thead><tr><th>Park</th><th>Program</th><th>Type</th><th>Start Date</th><th>Duration</th></tr></thead>
+        <tbody>${data.map(p => `
+          <tr>
+            <td class="text-muted">${p.PARK_NAME}</td>
+            <td><strong>${p.PROGRAM_NAME}</strong></td>
+            <td><span class="badge ${TYPE_COLORS[p.TYPE] || TYPE_COLORS.default}">${p.TYPE}</span></td>
+            <td>${p.START_DATE}</td>
+            <td>${p.DURATION} hr${p.DURATION !== 1 ? 's' : ''}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Enrollments ─────────────────────────────────────────────────────────────
+async function loadEnrollments() {
+  const park = document.getElementById('filter-enroll-park')?.value;
+  const prog = document.getElementById('filter-enroll-program')?.value;
+  const params = new URLSearchParams();
+  if (park) params.set('park', park);
+  if (prog) params.set('program', prog);
+  try {
+    const data = await api('/enrollments?' + params);
+    document.getElementById('enrollments-table-wrap').innerHTML = data.length === 0 ? emptyState('📋','No enrollments') : `
+      <table>
+        <thead><tr><th>Person</th><th>Park</th><th>Program</th><th>Visit Date</th><th>Accessibility</th></tr></thead>
+        <tbody>${data.map(e => `
+          <tr>
+            <td><strong>${e.FIRST_NAME} ${e.LAST_NAME}</strong><div class="text-muted text-mono">${e.ID}</div></td>
+            <td class="text-muted">${e.PARK_NAME}</td>
+            <td>${e.PROGRAM_NAME}</td>
+            <td class="text-muted">${e.VISIT_DATE || '—'}</td>
+            <td>${e.ACCESSIBILITY ? `<span class="badge badge-sky">${e.ACCESSIBILITY}</span>` : '<span class="text-muted">—</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Teams ───────────────────────────────────────────────────────────────────
+async function loadTeams() {
+  try {
+    const teams = await api('/teams');
+    const membersPromises = teams.map(t => api(`/teams/${t.TEAM_ID}/members`));
+    const allMembers = await Promise.all(membersPromises);
+    const container = document.getElementById('teams-container');
+    if (teams.length === 0) { container.innerHTML = emptyState('🛡️','No teams'); return; }
+
+    container.innerHTML = teams.map((team, i) => `
+      <div class="card mb-24">
+        <div class="card-header">
+          <div>
+            <h3>${team.TEAM_ID}</h3>
+            <div class="text-muted" style="font-size:.8rem;margin-top:2px">
+              🎯 ${team.FOCUS_AREA} &nbsp;·&nbsp; 📅 Formed ${team.FORMATION_DATE}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span class="badge badge-green">${team.member_count} rangers</span>
+            <span class="badge badge-sky">${team.researcher_count} researchers</span>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          ${allMembers[i].length === 0 ? '<div style="padding:20px" class="text-muted">No members assigned.</div>' : `
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Years</th><th>Certifications</th></tr></thead>
+            <tbody>${allMembers[i].map(m => `
+              <tr>
+                <td class="text-mono">${m.PERSON_ID}</td>
+                <td><strong>${m.FIRST_NAME} ${m.LAST_NAME}</strong></td>
+                <td><span class="badge ${m.role === 'Leader' ? 'badge-earth' : 'badge-green'}">${m.role}</span></td>
+                <td>${m.years_of_service} yrs</td>
+                <td class="text-muted" style="font-size:.8rem">${m.CERTIFICATIONS || '—'}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>`}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+// ─── Donations ───────────────────────────────────────────────────────────────
+async function loadDonations() {
+  const monthEl = document.getElementById('filter-donation-month');
+  const anonEl  = document.getElementById('filter-anon');
+  const params  = new URLSearchParams();
+  if (monthEl?.value) params.set('month', monthEl.value);
+  if (anonEl?.checked) params.set('anon_only', 'true');
+  try {
+    const data = await api('/donations?' + params);
+    document.getElementById('donations-table-wrap').innerHTML = data.length === 0 ? emptyState('💰','No donations') : `
+      <table>
+        <thead><tr><th>Donor</th><th>Date</th><th>Amount</th><th>Campaign</th><th>Anonymous</th></tr></thead>
+        <tbody>${data.map(d => `
+          <tr>
+            <td><strong>${d.donor_name}</strong><div class="text-muted text-mono">${d.PERSON_ID}</div></td>
+            <td class="text-muted">${d.DATE}</td>
+            <td><strong style="color:var(--pine)">$${Number(d.AMOUNT).toFixed(2)}</strong></td>
+            <td class="text-muted">${d.CAMPAIGN_NAME || '—'}</td>
+            <td>${d.IS_ANONYMOUS ? '<span class="badge badge-stone">Yes</span>' : '<span class="text-muted">No</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Projects ────────────────────────────────────────────────────────────────
+async function loadProjects() {
+  try {
+    const data = await api('/projects');
+    document.getElementById('projects-table-wrap').innerHTML = data.length === 0 ? emptyState('🌿','No projects') : `
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Start Date</th><th>Budget</th><th>Parks</th></tr></thead>
+        <tbody>${data.map(p => `
+          <tr>
+            <td class="text-mono">${p.PROJECT_ID}</td>
+            <td><strong>${p.NAME}</strong></td>
+            <td class="text-muted">${p.START_DATE}</td>
+            <td><strong style="color:var(--pine)">$${Number(p.BUDGET).toLocaleString()}</strong></td>
+            <td class="text-muted" style="font-size:.8rem">${p.parks || '—'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+// ─── Mailing List ────────────────────────────────────────────────────────────
+async function loadMailingList() {
+  try {
+    const data = await api('/mailing-list');
+    document.getElementById('mailing-table-wrap').innerHTML = data.length === 0 ? emptyState('✉️','No subscribers') : `
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Address</th></tr></thead>
+        <tbody>${data.map(p => `
+          <tr>
+            <td><strong>${p.FIRST_NAME} ${p.LAST_NAME}</strong></td>
+            <td class="text-muted">${p.EMAIL_ADDRESS || '—'}</td>
+            <td class="text-muted">${p.STREET}, ${p.CITY}, ${p.STATE} ${p.POSTAL_CODE}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {}
+}
+
+async function exportMailingCSV() {
+  try {
+    const data = await api('/mailing-list');
+    if (data.length === 0) { toast('No subscribers to export.', 'info'); return; }
+    const csv = ['first_name,last_name,email,street,city,state,postal_code',
+      ...data.map(p => `${p.FIRST_NAME},${p.LAST_NAME},${p.EMAIL_ADDRESS||''},${p.STREET},${p.CITY},${p.STATE},${p.POSTAL_CODE}`)
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'nps_mailing_list.csv';
+    a.click();
+    toast('Mailing list exported!');
+  } catch(e) {}
+}
+
+// ─── SQL Terminal ────────────────────────────────────────────────────────────
+function setQuery(q) { document.getElementById('sql-input').value = q; }
+
+async function runQuery() {
+  const sql = document.getElementById('sql-input').value.trim();
+  if (!sql) return;
+  const container = document.getElementById('query-results-container');
+  const results   = document.getElementById('query-results');
+  container.classList.remove('hidden');
+  results.innerHTML = '<div class="loading"><div class="spinner"></div> Running query...</div>';
+  try {
+    const data = await api('/query', { method:'POST', body: JSON.stringify({ sql }) });
+    if (data.type === 'SELECT') {
+      if (!data.rows || data.rows.length === 0) {
+        results.innerHTML = '<div style="padding:20px" class="text-muted">Query returned 0 rows.</div>';
+      } else {
+        const cols = Object.keys(data.rows[0]);
+        results.innerHTML = `
+          <div style="padding:10px 16px;background:var(--smoke);font-size:.75rem;color:var(--stone);border-bottom:var(--border)">
+            ${data.rows.length} row${data.rows.length !== 1 ? 's' : ''} returned
+          </div>
+          <table>
+            <thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+            <tbody>${data.rows.map(row => `<tr>${cols.map(c => `<td>${row[c] === null ? '<span class="text-muted">NULL</span>' : row[c]}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>`;
+      }
+    } else {
+      results.innerHTML = `<div style="padding:20px">
+        <span class="badge badge-green">✓ Success</span>
+        <span class="text-muted" style="margin-left:12px">${data.changes} row${data.changes !== 1 ? 's' : ''} affected</span>
+      </div>`;
+    }
+    toast('Query executed successfully');
+  } catch(e) {
+    results.innerHTML = `<div style="padding:20px;color:var(--crimson)">⚠️ ${e.message}</div>`;
+    toast(e.message, 'error');
+  }
+}
+
+// ─── Bulk Operations ──────────────────────────────────────────────────────────
+async function applyRaises() {
+  if (!confirm('Apply 3% salary raise to researchers overseeing >1 team?')) return;
+  try {
+    const res = await api('/operations/researcher-raises', { method: 'POST' });
+    toast(`${res.message} · ${res.updated} researcher${res.updated !== 1 ? 's' : ''} updated`);
+    if (currentPage === 'researchers') loadResearchers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function cleanVisitors() {
+  if (!confirm('Delete inactive visitors with no enrollments and no valid pass?')) return;
+  try {
+    const res = await api('/operations/inactive-visitors', { method: 'DELETE' });
+    toast(`${res.deleted} inactive visitor${res.deleted !== 1 ? 's' : ''} removed`);
+    if (currentPage === 'visitors') loadVisitors();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ─── Form Submissions ─────────────────────────────────────────────────────────
+function formToObj(form) {
+  const obj = {};
+  new FormData(form).forEach((v, k) => { obj[k] = v.trim() || null; });
+  // Handle checkboxes (not in FormData when unchecked)
+  form.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    obj[cb.name] = cb.checked ? 1 : 0;
+  });
+  return obj;
+}
+
+async function submitAddPerson(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/persons', { method:'POST', body: JSON.stringify(data) });
+    toast('Person created!');
+    closeModal('modal-add-person');
+    loadPersons();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddVisitor(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/visitors', { method:'POST', body: JSON.stringify({ PERSON_ID: data.PERSON_ID }) });
+    if (data.PARK_NAME && data.PROGRAM_NAME) {
+      await api('/enrollments', { method:'POST', body: JSON.stringify(data) });
+    }
+    toast('Visitor added!');
+    closeModal('modal-add-visitor');
+    loadVisitors();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddRanger(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/rangers', { method:'POST', body: JSON.stringify(data) });
+    toast('Ranger created!');
+    closeModal('modal-add-ranger');
+    loadRangers();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddResearcher(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/researchers', { method:'POST', body: JSON.stringify(data) });
+    toast('Researcher created!');
+    closeModal('modal-add-researcher');
+    loadResearchers();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddPark(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/parks', { method:'POST', body: JSON.stringify(data) });
+    toast('Park added!');
+    closeModal('modal-add-park');
+    parksData = [];
+    loadParks();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddProgram(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/programs', { method:'POST', body: JSON.stringify(data) });
+    toast('Program created!');
+    closeModal('modal-add-program');
+    loadPrograms();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddEnrollment(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/enrollments', { method:'POST', body: JSON.stringify(data) });
+    toast('Enrollment recorded!');
+    closeModal('modal-add-enrollment');
+    loadEnrollments();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddTeam(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/teams', { method:'POST', body: JSON.stringify(data) });
+    toast('Team created!');
+    closeModal('modal-add-team');
+    loadTeams();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+async function submitAddDonation(e) {
+  e.preventDefault();
+  const data = formToObj(e.target);
+  try {
+    await api('/donations', { method:'POST', body: JSON.stringify(data) });
+    toast('Donation recorded!');
+    closeModal('modal-add-donation');
+    loadDonations();
+  } catch(err) { toast(err.message, 'error'); }
+}
+
+function togglePaymentFields(type) {
+  document.getElementById('card-fields').classList.toggle('hidden', type !== 'card');
+  document.getElementById('check-fields').classList.toggle('hidden', type !== 'check');
+}
+
+// ─── Search ──────────────────────────────────────────────────────────────────
+function handleSearch(q) {
+  if (!q) return;
+  // Simple row filtering
+  document.querySelectorAll('tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ─── Utility ─────────────────────────────────────────────────────────────────
+function emptyState(icon, msg) {
+  return `<div class="empty-state"><div class="icon">${icon}</div><h3>${msg}</h3><p>No records found.</p></div>`;
+}
+
+function openAddModal() {
+  const modals = {
+    persons:'modal-add-person', visitors:'modal-add-visitor', rangers:'modal-add-ranger',
+    researchers:'modal-add-researcher', parks:'modal-add-park', programs:'modal-add-program',
+    enrollments:'modal-add-enrollment', teams:'modal-add-team', donations:'modal-add-donation',
+  };
+  const m = modals[currentPage];
+  if (m) openModal(m);
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>

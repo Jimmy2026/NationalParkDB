@@ -1,0 +1,20 @@
+{
+  "name": "national-park-service-db",
+  "version": "1.0.0",
+  "description": "National Park Service Database Management System — CS4513 DBMS Project",
+  "main": "backend/server.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  },
+  "keywords": ["database", "sqlite", "national-parks", "dbms"],
+  "author": "AbdulMalik Shodunke",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.3"
+  }
+}
