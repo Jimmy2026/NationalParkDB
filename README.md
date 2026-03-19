@@ -199,4 +199,14 @@ The original implementation used **Azure SQL Server** with a Java JDBC console a
 
 ---
 
+## 👨‍💻 Author
+
+**AbdulMalik Shodunke** ([@Jimmy2026](https://github.com/Jimmy2026))
+
+- Website: [abdulmaliksho.vercel.app](https://abdulmaliksho.vercel.app)
+- GitHub: [@Jimmy2026](https://github.com/Jimmy2026)
+- LinkedIn: [@abdulmalikshodunke](https://linkedin.com/in/abdulmalikshodunke)
+
+---
+
 *National Park Service DBMS — CS4513 Fall 2025 Individual Project*
