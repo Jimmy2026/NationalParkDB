@@ -957,7 +957,7 @@ textarea.sql-input {
     </div>
 
     <div class="nav-section">
-      <a href="https://abdulmaliksho.vercel.app" target="_blank" rel="noopener" class="nav-label" style="display:block;color:var(--sage);text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='var(--fern)'" onmouseout="this.style.color='var(--sage)'">AbdulMalik Shodunke ↗</a>
+      <div class="nav-label">Developer</div>
       <div class="nav-item" data-page="query">
         <span class="nav-icon">⌨️</span> SQL Terminal
       </div>
@@ -967,28 +967,28 @@ textarea.sql-input {
     </div>
   </nav>
 
-  <div class="sidebar-footer">
-    <div>SQLite · Node.js · Express</div>
-    <a href="https://abdulmaliksho.vercel.app" target="_blank" rel="noopener" 
-       style="display:block;margin-top:6px;color:var(--earth);text-decoration:none;font-weight:600;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.15s;"
-       onmouseover="this.style.color='var(--fern)'" onmouseout="this.style.color='var(--earth)'">
-      AbdulMalik Shodunke · AI Researcher ↗
-    </a>
-</div>
+    <div class="sidebar-footer">
+      <div>SQLite · Node.js · Express</div>
+      <div style="margin-top:4px;color:var(--fern)">CS4513 DBMS Project</div>
+    </div>
 </aside>
 
 <!-- ══════════════════════════════════════ MAIN ═════════════════════════════ -->
 <div id="main">
-  <div id="topbar">
-    <div class="topbar-title" id="page-title">Dashboard</div>
-    <div class="topbar-search">
-      <span>🔍</span>
-      <input type="text" id="global-search" placeholder="Search..." oninput="handleSearch(this.value)">
+      <div id="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-search">
+        <span>🔍</span>
+        <input type="text" id="global-search" placeholder="Search..." oninput="handleSearch(this.value)">
+      </div>
+      <a href="https://abdulmaliksho.vercel.app" target="_blank" rel="noopener" 
+        class="btn btn-outline" style="font-size:0.8rem;">
+        AbdulMalik Shodunke ↗
+      </a>
+      <button class="btn btn-primary" id="topbar-add-btn" onclick="openAddModal()" style="display:none">
+        + Add New
+      </button>
     </div>
-    <button class="btn btn-primary" id="topbar-add-btn" onclick="openAddModal()" style="display:none">
-      + Add New
-    </button>
-  </div>
 
   <div id="content">
 
