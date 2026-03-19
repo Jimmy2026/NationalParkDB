@@ -1,6 +1,6 @@
 # 🌲 National Park Service — Database Management System
 
-> **CS4513 DBMS Individual Project** | SQLite · Node.js · Express · Vanilla JS
+> SQLite · Node.js · Express · Vanilla JS
 
 A full-stack database management system for the National Park Service, featuring a modern web UI and a polished SQLite backend. Originally built with Azure SQL Server, now fully free and runs locally with zero configuration.
 
@@ -209,4 +209,4 @@ The original implementation used **Azure SQL Server** with a Java JDBC console a
 
 ---
 
-*National Park Service DBMS — CS4513 Fall 2025 Individual Project*
+*National Park Service DBMS — Personal Project*
